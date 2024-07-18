@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="ObrasActivas.html">Página 1</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="AsignarAlbanil.html">Página 2</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="PostAlbanil.html">Página 3</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container mt-4">
+    <h1 id="obraId"></h1>
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label for="albanilSelect">Seleccionar Albañil:</label>
+            <select class="form-control" id="albanilSelect">
+                <!-- Opciones se cargarán dinámicamente -->
+            </select>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <label for="tareaTextarea">Tarea a Realizar:</label>
+            <textarea class="form-control" id="tareaTextarea" rows="3"></textarea>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-2">
+            <button class="btn btn-primary" onclick="asignarAlbanil()">Asignar Albañil</button>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+
+    const urlApi = "https://localhost:44364/api/Parcial/";
+    const urlParams = new URLSearchParams(window.location.search);
+    const idObra = urlParams.get('idObra')
+
+    document.getElementById("obraId").innerText = `Id de la obra: ${idObra}`
+
+
+    async function cargarAlbanilesNoEnObra(){
+
+        const response = await fetch(`${urlApi}GetAlbaniles?obraId=${idObra}`)
+        const responseJson = await response.json()
+        if(!responseJson.success){
+            alert(responseJson.message)
+        }
+        const albanilSelect = document.getElementById('albanilSelect');
+        responseJson.data.forEach(albanil =>{
+            const option = document.createElement('option');
+            option.value = albanil.id;
+            option.innerText = `${albanil.nombre} ${albanil.apellido}`
+            albanilSelect.appendChild(option);
+        })
+    }
+
+    async function asignarAlbanil(){
+        const albanilId = document.getElementById('albanilSelect').value
+        const tarea =  document.getElementById('tareaTextarea').value
+
+        const data = {
+            idAlbanil : albanilId,
+            idObra : idObra,
+            tareaArealizar : tarea
+        };
+        const response = await fetch(`${urlApi}PostAlbanilXObra`, {
+            method: 'POST',
+            headers: {
+                'Content-Type':'application/json'
+            },
+            body: JSON.stringify(data)
+            });
+        const responseData = await response.json();
+        if(!responseData.success){
+            alert(responseData.message)
+        }
+        alert(responseData.message)
+    }
+    cargarAlbanilesNoEnObra();
+</script>
+</body>
+</html>

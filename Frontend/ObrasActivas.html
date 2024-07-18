@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="ObrasActivas.html">Página 1</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="AsignarAlbanil.html">Página 2</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="PostAlbanil.html">Página 3</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h1>OBRAS ACTIVAS</h1>
+    <div class="row mt-3">
+        <table class="table">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Datos Varios</th>
+                <th scope="col">Tipo de Obra</th>
+                <th scope="col">Cantidad de Albañiles</th>
+                <th scope="col">Acciones</th>
+            </tr>
+            </thead>
+            <tbody id="obrasBody">
+            <!-- Aquí se cargarán las filas de las obras activas -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    async function cargarObrasActivas() {
+        try {
+            const response = await fetch("https://localhost:44364/api/Parcial/GetObras")
+            let responseJson = await response.json();
+
+            if (!responseJson.success) {
+                alert(responseJson.message);
+            }
+
+            let obras = responseJson.data;
+            let obrasBody = document.getElementById("obrasBody");
+
+            obras.forEach(obra => {
+                const row = `<tr>
+                                <td>${obra.nombre}</td>
+                                <td>${obra.datosVarios}</td>
+                                <td>${obra.nombreTipoObra}</td>
+                                <td>${obra.cantidadAlbaniles}</td>
+                                <td>
+                                   ${obra.nombreTipoObra === 'Edificio' ?
+                    `<button class="btn btn-primary" onclick="asignarAlbanil('${obra.id}')">Asignar albañil</button>` : ''}
+                                </td>
+                            </tr>`;
+                obrasBody.innerHTML += row;
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    function asignarAlbanil(idObra) {
+        window.location.href = `AsignarAlbanil.html?idObra=${idObra}`;
+    }
+
+    cargarObrasActivas();
+</script>
+</body>
+</html>
